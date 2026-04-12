@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  REFRESH
+}
+
+// ─── Admin (fixed, seeded — single super-admin) ───────────────────────────────
+
+model Admin {
+  id                  String    @id @default(uuid())
+  fullName            String
+  email               String    @unique
+  password            String
+  isActive            Boolean   @default(true)
+  lastLoginAt         DateTime?
+  passwordChangedAt   DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+  createdBy           String?   // adminId (null for seeded)
+  updatedBy           String?   // adminId
+  deletedBy           String?   // adminId
+
+  adminTokens AdminToken[]
+
+  @@map("admins")
+}
+
+// ─── Dynamic Roles (admin-managed) ───────────────────────────────────────────
+
+model Role {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String    @db.Text
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdBy   String    // adminId
+  updatedBy   String?   // adminId
+  deletedBy   String?   // adminId
+
+  users User[]
+
+  @@map("roles")
+}
+
+// ─── Users (self-registered, pick an admin-created role) ─────────────────────
+
+model User {
+  id                  String    @id @default(uuid())
+  fullName            String
+  email               String    @unique
+  password            String
+  roleId              String
+  isEmailVerified     Boolean   @default(false)
+  isActive            Boolean   @default(true)
+  avatar              String?
+  phoneNumber         String?
+  lastLoginAt         DateTime?
+  passwordChangedAt   DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+  createdBy           String?   // null = self-registered
+  updatedBy           String?
+  deletedBy           String?   // adminId
+
+  role   Role    @relation(fields: [roleId], references: [id])
+  tokens Token[]
+
+  @@map("users")
+}
+
+// ─── User Tokens ──────────────────────────────────────────────────────────────
+
+model Token {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(512)
+  type      TokenType
+  expiresAt DateTime
+  used      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  userId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("tokens")
+}
+
+// ─── Admin Tokens (fully isolated from user tokens) ──────────────────────────
+
+model AdminToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(512)
+  type      TokenType
+  expiresAt DateTime
+  used      Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  adminId   String
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([adminId])
+  @@map("admin_tokens")
+}
