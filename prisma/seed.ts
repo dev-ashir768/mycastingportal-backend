@@ -34,7 +34,7 @@ async function seedAdmin(): Promise<string> {
   });
 
   console.log(`  Admin upserted → ${admin.email} (id: ${admin.id})`);
-  console.log('  ⚠  Default password: 12345678 — change it after first login!');
+  console.log('  ⚠  Default password: Admin@123 — change it after first login!');
 
   return admin.id;
 }
