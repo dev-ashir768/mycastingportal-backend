@@ -55,7 +55,7 @@ export const config = {
   },
 
   cors: {
-    origins: getEnv('CORS_ORIGIN', 'http://localhost:3000').split(','),
+    origin: getEnv('CORS_ORIGIN', 'http://localhost:3000'),
   },
 
   email: {
