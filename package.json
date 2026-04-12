@@ -1,7 +1,7 @@
 {
-  "name": "actor-agency-backend",
+  "name": "mycastingportal-backend",
   "version": "1.0.0",
-  "description": "Production-level Actor Agency Backend API",
+  "description": "Production-level Backend API",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon",
