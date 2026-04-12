@@ -16,8 +16,8 @@ const prisma = new PrismaClient();
 async function seedAdmin(): Promise<string> {
   console.log('Seeding admin...');
 
-  const email = 'admin@yopmail.com';
-  const plainPassword = '12345678';
+  const email = 'admin@gmail.com';
+  const plainPassword = 'Admin@123';
 
   // Hash directly — intentionally bypasses API Joi validation
   const password = await bcrypt.hash(plainPassword, 12);
