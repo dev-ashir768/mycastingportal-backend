@@ -113,9 +113,9 @@ class AuthService {
       },
     });
 
-    emailService
-      .sendEmailVerification(user.email, user.fullName, verificationToken)
-      .catch((err) => logger.error('Failed to send verification email', err));
+    // emailService
+    //   .sendEmailVerification(user.email, user.fullName, verificationToken)
+    //   .catch((err) => logger.error('Failed to send verification email', err));
 
     const { tokenId, ...tokens } = this.buildTokens(user.id, user.email, user.roleId);
     await this.storeRefreshToken(user.id, tokens.refreshToken, tokenId);
